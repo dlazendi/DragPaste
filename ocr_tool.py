@@ -3,6 +3,8 @@
 
 import sys
 import os
+import subprocess
+import tempfile
 import threading
 import queue
 import tkinter as tk
@@ -11,26 +13,33 @@ import mss
 import pyperclip
 import pystray
 from pynput import keyboard as pynput_keyboard
-import pytesseract
 
 
-def _setup_tesseract() -> None:
-    """Locate Tesseract: prefer a Tesseract-OCR folder next to the exe, fall back to system install."""
+def _find_tesseract() -> str:
     if getattr(sys, 'frozen', False):
         base = os.path.dirname(sys.executable)
     else:
         base = os.path.dirname(os.path.abspath(__file__))
-
-    portable = os.path.join(base, 'Tesseract-OCR', 'tesseract.exe')
-    if os.path.exists(portable):
-        pytesseract.pytesseract.tesseract_cmd = portable
-        # Tell Tesseract where its tessdata lives when running from a portable folder
-        os.environ.setdefault('TESSDATA_PREFIX', os.path.join(base, 'Tesseract-OCR'))
-    else:
-        pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    exe = os.path.join(base, 'Tesseract-OCR', 'tesseract.exe')
+    return exe if os.path.exists(exe) else r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 
-_setup_tesseract()
+TESS_EXE = _find_tesseract()
+
+
+def run_ocr(img: Image.Image) -> str:
+    with tempfile.TemporaryDirectory() as tmp:
+        inp = os.path.join(tmp, 'in.png')
+        out = os.path.join(tmp, 'out')
+        img.save(inp)
+        subprocess.run(
+            [TESS_EXE, inp, out, '-l', 'eng', 'txt'],
+            check=True,
+            capture_output=True,
+        )
+        with open(out + '.txt', encoding='utf-8') as f:
+            return f.read().strip()
+
 
 task_queue: queue.Queue = queue.Queue()
 tray_icon: pystray.Icon | None = None
@@ -42,20 +51,18 @@ def create_tray_image() -> Image.Image:
     img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
     draw.rectangle([2, 2, size - 2, size - 2], fill=(30, 144, 255, 255), outline=(20, 100, 200, 255), width=2)
-    # White "T" for text/OCR
     draw.rectangle([12, 14, 52, 22], fill='white')
     draw.rectangle([28, 22, 36, 50], fill='white')
     return img
 
 
 def show_selection_window(root: tk.Tk, on_complete) -> None:
-    """Display semi-transparent fullscreen overlay for region selection."""
     with mss.mss() as sct:
         mon = sct.monitors[0]
         offset_x = mon['left']
         offset_y = mon['top']
-        total_w = mon['width']
-        total_h = mon['height']
+        total_w  = mon['width']
+        total_h  = mon['height']
 
     win = tk.Toplevel(root)
     win.overrideredirect(True)
@@ -111,19 +118,17 @@ def show_selection_window(root: tk.Tk, on_complete) -> None:
     canvas.bind('<B1-Motion>', on_drag)
     canvas.bind('<ButtonRelease-1>', on_release)
     win.bind('<Escape>', on_escape)
-
     win.focus_force()
     canvas.focus_set()
 
 
 def perform_ocr(region: dict) -> None:
-    """Capture region, run OCR, copy text to clipboard, notify via tray."""
     global is_capturing
     try:
         with mss.mss() as sct:
             screenshot = sct.grab(region)
-        img = Image.frombytes('RGB', screenshot.size, screenshot.rgb)
-        text = pytesseract.image_to_string(img).strip()
+        img  = Image.frombytes('RGB', screenshot.size, screenshot.rgb)
+        text = run_ocr(img)
         if text:
             pyperclip.copy(text)
             if tray_icon:
@@ -139,7 +144,6 @@ def perform_ocr(region: dict) -> None:
 
 
 def do_capture(root: tk.Tk) -> None:
-    """Initiate capture flow; must be called from tkinter main thread."""
     global is_capturing
     if is_capturing:
         return
@@ -156,7 +160,6 @@ def do_capture(root: tk.Tk) -> None:
 
 
 def check_queue(root: tk.Tk) -> None:
-    """Drain task queue; rescheduled every 100 ms from tkinter mainloop."""
     try:
         while True:
             task = task_queue.get_nowait()
@@ -189,7 +192,6 @@ def start_tray(root: tk.Tk) -> None:
         pystray.MenuItem('Capture (Ctrl+Shift+S)', on_capture, default=True),
         pystray.MenuItem('Exit', on_exit),
     )
-
     icon_img = create_tray_image()
     tray_icon = pystray.Icon('OCRTool', icon_img, 'Screen OCR Tool', menu)
     tray_icon.run()
@@ -205,10 +207,9 @@ def main() -> None:
     root.withdraw()
     root.wm_attributes('-toolwindow', True)
 
-    tray_thread = threading.Thread(target=start_tray, args=(root,), daemon=True)
-    tray_thread.start()
-
+    tray_thread   = threading.Thread(target=start_tray, args=(root,), daemon=True)
     hotkey_thread = threading.Thread(target=start_hotkey_listener, daemon=True)
+    tray_thread.start()
     hotkey_thread.start()
 
     root.after(100, lambda: check_queue(root))

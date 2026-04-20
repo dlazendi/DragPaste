@@ -14,7 +14,21 @@
       "Bash(git commit *)",
       "Bash(git branch *)",
       "Bash(git remote *)",
-      "Bash(git config *)"
+      "Bash(git config *)",
+      "Read(//c/Users/blist/AppData/Local/Screen OCR Tool/**)",
+      "Read(//c/Users/blist/AppData/Local/Screen OCR Tool/Tesseract-OCR/**)",
+      "Bash(powershell -command \"\\(Get-Item 'C:/Github/DragPaste/dist/OCRTool.exe'\\).LastWriteTime\")",
+      "Bash(powershell -command \"\\(Get-Item 'C:/Github/DragPaste/ocr_tool.py'\\).LastWriteTime\")",
+      "Bash(powershell -command \"[System.Environment]::GetEnvironmentVariable\\('TESSDATA_PREFIX', 'User'\\); [System.Environment]::GetEnvironmentVariable\\('TESSDATA_PREFIX', 'Machine'\\)\")",
+      "Bash(powershell -command 'echo \"[System.Environment]::SetEnvironmentVariable\\('\\\\''TESSDATA_PREFIX'\\\\'', \\\\\"$env:LOCALAPPDATA\\\\Screen OCR Tool\\\\Tesseract-OCR\\\\\", '\\\\''User'\\\\''\\)\"')",
+      "Bash(powershell -command \"Get-Command tesseract -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source; Get-ItemProperty 'HKLM:\\\\SOFTWARE\\\\Tesseract-OCR' -ErrorAction SilentlyContinue | Select-Object InstallDir\")",
+      "Bash(where tesseract *)",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Program Files \\(x86\\)/**)",
+      "Bash(python -m pyinstaller --version)",
+      "Bash(python -c \"import sys; print\\(sys.executable\\)\")",
+      "Bash(powershell -command \"\\(Get-Item 'C:/Users/blist/AppData/Local/ScreenOCRTool/OCRTool.exe'\\).LastWriteTime\")",
+      "Bash(powershell -command \"[System.Environment]::GetEnvironmentVariable\\('TESSDATA_PREFIX', 'User'\\)\")"
     ]
   }
 }

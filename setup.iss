@@ -13,7 +13,7 @@ AppName={#AppName}
 AppVersion={#AppVersion}
 AppPublisher={#AppPublisher}
 AppVerName={#AppName} {#AppVersion}
-DefaultDirName={localappdata}\{#AppName}
+DefaultDirName={localappdata}\ScreenOCRTool
 DefaultGroupName={#AppName}
 ; Per-user install — no UAC prompt required
 PrivilegesRequired=lowest
@@ -50,6 +50,12 @@ Name: "{group}\Uninstall {#AppName}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#AppName}";     Filename: "{app}\{#AppExeName}"; Tasks: desktopicon
 
 [Registry]
+; Set TESSDATA_PREFIX so Tesseract always finds its language data on any PC
+Root: HKCU; Subkey: "Environment"; \
+  ValueType: expandsz; ValueName: "TESSDATA_PREFIX"; \
+  ValueData: "{app}\Tesseract-OCR"; \
+  Flags: uninsdeletevalue
+
 ; Auto-start at login (only when the startup task is selected)
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; \
   ValueType: string; ValueName: "{#AppName}"; \
