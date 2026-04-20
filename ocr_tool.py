@@ -8,6 +8,7 @@ import tempfile
 import threading
 import queue
 import tkinter as tk
+from tkinter import messagebox
 from PIL import Image, ImageDraw
 import mss
 import pyperclip
@@ -32,10 +33,13 @@ def run_ocr(img: Image.Image) -> str:
         inp = os.path.join(tmp, 'in.png')
         out = os.path.join(tmp, 'out')
         img.save(inp)
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         subprocess.run(
             [TESS_EXE, inp, out, '-l', 'eng', 'txt'],
             check=True,
             capture_output=True,
+            startupinfo=si,
         )
         with open(out + '.txt', encoding='utf-8') as f:
             return f.read().strip()
@@ -202,7 +206,21 @@ def start_hotkey_listener() -> None:
         listener.join()
 
 
+_mutex = None  # holds Windows single-instance mutex for process lifetime
+
+
 def main() -> None:
+    global _mutex
+    if sys.platform == 'win32':
+        import ctypes
+        _mutex = ctypes.windll.kernel32.CreateMutexW(None, True, 'ScreenOCRTool_SingleInstance')
+        if ctypes.windll.kernel32.GetLastError() == 183:  # ERROR_ALREADY_EXISTS
+            root = tk.Tk()
+            root.withdraw()
+            messagebox.showinfo('Screen OCR Tool', 'Screen OCR Tool is already running.\nCheck the system tray.')
+            root.destroy()
+            return
+
     root = tk.Tk()
     root.withdraw()
     root.wm_attributes('-toolwindow', True)
