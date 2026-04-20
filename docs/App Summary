@@ -1,0 +1,18 @@
+Files created:
+
+ocr_tool.py — Main script
+build.bat — One-click build script
+dist/OCRTool.exe — Final executable (19 MB, single file, no console)
+How to use:
+
+Run the tool: Double-click dist\OCRTool.exe — it starts silently in the system tray (blue "T" icon)
+Capture: Press Ctrl+Shift+S (or right-click tray → Capture) — screen dims, drag a rectangle
+Result: OCR runs automatically; text is copied to clipboard and a tray notification confirms it
+Exit: Right-click tray → Exit
+To rebuild: Just double-click build.bat from this folder. It reinstalls deps and rebuilds dist\OCRTool.exe.
+
+Notes:
+
+Tesseract must be installed at C:\Program Files\Tesseract-OCR\tesseract.exe (as specified)
+Press Escape during selection to cancel without capturing
+Supports multi-monitor setups — the dim overlay covers all screens

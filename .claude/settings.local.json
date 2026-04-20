@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install *)",
+      "Bash(pyinstaller --onefile --noconsole --name OCRTool --hidden-import=pystray._win32 --hidden-import=pynput.keyboard._win32 --hidden-import=pynput.mouse._win32 --hidden-import=mss.windows ocr_tool.py)",
+      "Bash(xargs du *)",
+      "Bash(cp \"C:/Program Files/Tesseract-OCR/tesseract.exe\" dist/Tesseract-OCR/)",
+      "Bash(cp \"C:/Program Files/Tesseract-OCR/\"*.dll dist/Tesseract-OCR/)",
+      "Bash(cp \"C:/Program Files/Tesseract-OCR/tessdata/eng.traineddata\" dist/Tesseract-OCR/tessdata/)",
+      "Bash(cp \"C:/Program Files/Tesseract-OCR/tessdata/osd.traineddata\" dist/Tesseract-OCR/tessdata/)",
+      "Bash(gh auth *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git branch *)",
+      "Bash(git remote *)",
+      "Bash(git config *)"
+    ]
+  }
+}
