@@ -17,12 +17,18 @@ from pynput import keyboard as pynput_keyboard
 
 
 def _find_tesseract() -> str:
+    candidates = []
     if getattr(sys, 'frozen', False):
-        base = os.path.dirname(sys.executable)
+        candidates.append(os.path.dirname(sys.executable))
     else:
-        base = os.path.dirname(os.path.abspath(__file__))
-    exe = os.path.join(base, 'Tesseract-OCR', 'tesseract.exe')
-    return exe if os.path.exists(exe) else r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        candidates.append(script_dir)
+        candidates.append(os.path.join(script_dir, 'dist'))
+    for base in candidates:
+        exe = os.path.join(base, 'Tesseract-OCR', 'tesseract.exe')
+        if os.path.exists(exe):
+            return exe
+    return r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 
 TESS_EXE = _find_tesseract()
@@ -35,12 +41,17 @@ def run_ocr(img: Image.Image) -> str:
         img.save(inp)
         si = subprocess.STARTUPINFO()
         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        subprocess.run(
+        env = os.environ.copy()
+        env['TESSDATA_PREFIX'] = os.path.join(os.path.dirname(TESS_EXE), 'tessdata')
+        result = subprocess.run(
             [TESS_EXE, inp, out, '-l', 'eng', 'txt'],
-            check=True,
             capture_output=True,
             startupinfo=si,
+            env=env,
         )
+        if result.returncode != 0:
+            stderr = result.stderr.decode('utf-8', errors='replace').strip()
+            raise RuntimeError(stderr or f'Tesseract exited with code {result.returncode}')
         with open(out + '.txt', encoding='utf-8') as f:
             return f.read().strip()
 
@@ -141,6 +152,7 @@ def perform_ocr(region: dict) -> None:
             if tray_icon:
                 tray_icon.notify('No text detected in selection', 'OCR Tool')
     except Exception as exc:
+        print(f'OCR Error: {exc}')
         if tray_icon:
             tray_icon.notify(f'Error: {str(exc)[:80]}', 'OCR Tool')
     finally:

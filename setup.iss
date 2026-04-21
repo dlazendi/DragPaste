@@ -2,7 +2,7 @@
 ; https://jrsoftware.org/isinfo.php
 
 #define AppName "Screen OCR Tool"
-#define AppVersion "1.0"
+#define AppVersion "1.1"
 #define AppPublisher "dlazendi"
 #define AppExeName "OCRTool.exe"
 #define AppId "{{C7F3A2B1-D948-4E6C-83F0-1A2B3C4D5E6F}"

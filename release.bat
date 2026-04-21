@@ -35,10 +35,8 @@ set PYTHON=%LOCALAPPDATA%\Python\pythoncore-3.14-64\python.exe
 set PYINSTALLER=%LOCALAPPDATA%\Python\pythoncore-3.14-64\Scripts\pyinstaller.exe
 
 set ISCC=
-for %%p in (
-    "C:\Program Files (x86)\Inno Setup 6\iscc.exe"
-    "C:\Program Files\Inno Setup 6\iscc.exe"
-) do if exist %%p set ISCC=%%p
+if exist "C:\Program Files (x86)\Inno Setup 6\iscc.exe" set ISCC=C:\Program Files (x86)\Inno Setup 6\iscc.exe
+if exist "C:\Program Files\Inno Setup 6\iscc.exe"       set ISCC=C:\Program Files\Inno Setup 6\iscc.exe
 if "%ISCC%"=="" (
     echo ERROR: Inno Setup 6 not found. Install from https://jrsoftware.org/isdl.php
     exit /b 1
@@ -77,11 +75,10 @@ if exist "%TESS_SRC%\tesseract.exe" (
 
 :: ── 4. Update setup.iss + compile installer ───
 echo [4/4] Compiling installer (v%VERSION%)...
-powershell -NoProfile -Command ^
-    "(Get-Content setup.iss) -replace '#define AppVersion \x22[^\x22]*\x22', '#define AppVersion \x22%VERSION%\x22' | Set-Content setup.iss"
+"%PYTHON%" -c "import re; d=open('setup.iss',encoding='utf-8').read(); d=re.sub(r'#define AppVersion \"[^\"]*\"','#define AppVersion \"%VERSION%\"',d); open('setup.iss','w',encoding='utf-8').write(d)"
 
 mkdir installer 2>nul
-%ISCC% /Q setup.iss
+"%ISCC%" /Q setup.iss
 if not exist "installer\OCRTool_Setup.exe" (
     echo ERROR: Inno Setup compile failed.
     exit /b 1

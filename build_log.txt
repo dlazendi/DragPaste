@@ -1,0 +1,19 @@
+194 INFO: PyInstaller: 6.19.0, contrib hooks: 2026.4
+195 INFO: Python: 3.14.4
+228 INFO: Platform: Windows-11-10.0.26200-SP0
+228 INFO: Python environment: C:\Users\blist\AppData\Local\Python\pythoncore-3.14-64
+229 INFO: wrote C:\Github\DragPaste\OCRTool.spec
+233 INFO: Module search paths (PYTHONPATH):
+['C:\\Users\\blist\\AppData\\Local\\Python\\pythoncore-3.14-64\\Scripts\\pyinstaller.exe',
+ 'C:\\Users\\blist\\AppData\\Local\\Python\\pythoncore-3.14-64\\python314.zip',
+ 'C:\\Users\\blist\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs',
+ 'C:\\Users\\blist\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib',
+ 'C:\\Users\\blist\\AppData\\Local\\Python\\pythoncore-3.14-64',
+ 'C:\\Users\\blist\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages',
+ 'C:\\Github\\DragPaste']
+603 INFO: checking Analysis
+659 INFO: checking PYZ
+678 INFO: checking PKG
+713 INFO: Bootloader C:\Users\blist\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\PyInstaller\bootloader\Windows-64bit-intel\runw.exe
+713 INFO: checking EXE
+744 INFO: Build complete! The results are available in: C:\Github\DragPaste\dist
